@@ -1,0 +1,13 @@
+PEDIR_TURNO:Manolo Galván,Traumatología,URGENTE
+PEDIR_TURNO:Leonardo Favio,Traumatología,REGULAR
+PEDIR_TURNO:Laura Pausini,Traumatología,URGENTE
+PEDIR_TURNO:Manuel Ginoso,Traumatología,REGULAR
+PEDIR_TURNO:Sofía Andrade,Pediatría,REGULAR
+ATENDER_SIGUIENTE:Hipócrates
+ATENDER_SIGUIENTE:Freitag
+ATENDER_SIGUIENTE:Freitag
+ATENDER_SIGUIENTE:Cortéz
+ATENDER_SIGUIENTE:Anton
+ATENDER_SIGUIENTE:Anton
+ATENDER_SIGUIENTE:Cortéz
+INFORME:Cortéz,Hipócrates
