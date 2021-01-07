@@ -75,7 +75,7 @@ void upheap(void** datos, size_t cant, cmp_func_t cmp) {
     return;
 }
 
-bool redimensionar(heap_t *heap, size_t nuevo_tam) {
+bool redimensionar_heap(heap_t *heap, size_t nuevo_tam) {
    void* nuevos_datos = realloc(heap->datos, nuevo_tam * sizeof(void*));
 
    if (!nuevo_tam) return false;
@@ -90,7 +90,7 @@ bool heap_encolar(heap_t *heap, void *elem) {
 
     if (heap->cant == heap->tam) {
         size_t nuevo_tam = NUEVO_TAM * heap->tam;
-        if (!redimensionar(heap, nuevo_tam)) return false;
+        if (!redimensionar_heap(heap, nuevo_tam)) return false;
     }
 
     heap->datos[heap->cant] = elem;
@@ -130,7 +130,7 @@ void *heap_desencolar(heap_t *heap) {
 
     if (heap->tam > TAM && heap->cant * DISMUNUIR_TAM <= heap->tam) {
         size_t nuevo_tam = heap->tam / NUEVO_TAM;
-        if (!redimensionar(heap, nuevo_tam)) return NULL;
+        if (!redimensionar_heap(heap, nuevo_tam)) return NULL;
     }
 
     void* desencolado = heap->datos[0];
