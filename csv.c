@@ -12,6 +12,13 @@ static void eliminar_fin_linea(char* linea) {
 	}
 }
 
+static void eliminar_cartridge_return(char* linea) {
+	size_t len = strlen(linea);
+	if (linea[len - 1] == '\r') {
+		linea[len - 1] = '\0';
+	}
+}
+
 // nombre_doctor1,nombre_especialidad_A
 //nombre_paciente1,año_inscripcion
 
@@ -32,9 +39,8 @@ hash_t* csv_crear_estructura(const char* ruta_csv) {
 	while (getline(&linea, &c, archivo) > 0) {
 		eliminar_fin_linea(linea);
 		char** campos = split(linea, SEPARADOR);
-		char* copia_dato = strdup(campos[1]);
-		hash_guardar(hash, campos[0], copia_dato);
-		free_strv(campos);
+		eliminar_cartridge_return(campos[1]);
+		hash_guardar(hash, campos[0], campos[1]);
 	}
 	free(linea);
 	fclose(archivo);

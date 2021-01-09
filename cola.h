@@ -2,6 +2,7 @@
 #define COLA_H
 
 #include <stdbool.h>
+#include <stddef.h>
 
 
 /* ******************************************************************
@@ -51,6 +52,10 @@ void *cola_ver_primero(const cola_t *cola);
 // Post: se devolvió el valor del primer elemento anterior, la cola
 // contiene un elemento menos, si la cola no estaba vacía.
 void *cola_desencolar(cola_t *cola);
+
+//Pre: la cola fue creada
+// devuelve la cantidad de elementos en la cola
+size_t cola_tam(cola_t *cola);
 
 
 /* *****************************************************************
