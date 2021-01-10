@@ -1,7 +1,7 @@
-PEDIR_TURNO:pepe,nariz,URGENTE
-PEDIR_TURNO:pepa,corazon,URGENTE
-PEDIR_TURNO:arturo,esternocleidomastoideo,URGENTE
-PEDIR_TURNO:manuela,nariz,PEREGIl
-PEDIR_TURNO:manuel,cerebro,URGENTE
-PEDIR_TURNO:argento,nariz,REGULAR
-PEDIR_TURNO:salamandra,cerebro,REGULAR
+PEDIR_TURNO:pepe,nariz,REGULAR
+PEDIR_TURNO:juan,nariz,URGENTE
+PEDIR_TURNO:martin,pie,REGULAR
+PEDIR_TURNO:argento,pierna,URGENTE
+PEDIR_TURNO:sofi,nariz,REGULAR
+PEDIR_TURNO:salamandra,corazon,URGENTE
+PEDIR_TURNO:dato,ojo,REGULAR
