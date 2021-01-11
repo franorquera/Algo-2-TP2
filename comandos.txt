@@ -5,3 +5,4 @@ PEDIR_TURNO:argento,pierna,URGENTE
 PEDIR_TURNO:sofi,nariz,REGULAR
 PEDIR_TURNO:salamandra,corazon,URGENTE
 PEDIR_TURNO:dato,ojo,REGULAR
+ATENDER_SIGUIENTE:federico

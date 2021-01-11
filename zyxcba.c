@@ -17,7 +17,7 @@ void destruir_espera(void* esp) {
 	espera_destruir((esp_t*) esp);
 }
 
-bool comprobar_errores(char** parametros, hash_t* pacientes, hash_t* especialidades){
+bool comprobar_errores_pedir_turno(char** parametros, hash_t* pacientes, hash_t* especialidades){
 	bool todo_ok = true;
 	if(!hash_pertenece(pacientes, parametros[0])){
 		printf(ENOENT_PACIENTE, parametros[0]);
@@ -34,32 +34,57 @@ bool comprobar_errores(char** parametros, hash_t* pacientes, hash_t* especialida
 	return todo_ok;
 }
 
+bool comprobar_errores_atender(char** parametros, hash_t* doctores){
+	bool todo_ok = true;
+	if(!hash_pertenece(doctores, parametros[0])){
+		printf(ENOENT_DOCTOR, parametros[0]);
+		todo_ok = false;
+	}
+	return todo_ok;
+}
+
 void agendar_turno_urgente(char* nombre, char* especialidad, hash_t* especialidades) {
 	esp_t* espera = hash_obtener(especialidades, especialidad);
-	guardar_urgente(espera, nombre);
+	char* nombre_copia = strdup(nombre);
+	guardar_urgente(espera, nombre_copia);
 	printf(PACIENTE_ENCOLADO, nombre);
 	printf(CANT_PACIENTES_ENCOLADOS, cantidad_espera(espera), especialidad);
 }
 
 void agendar_turno_regular(char* nombre, char* especialidad, hash_t* pacientes, hash_t* especialidades){
 	esp_t* espera = hash_obtener(especialidades, especialidad);
-	guardar_regular(espera, hash_obtener(pacientes, nombre), nombre);
+	char* nombre_copia = strdup(nombre);
+	guardar_regular(espera, hash_obtener(pacientes, nombre), nombre_copia);
 	printf(PACIENTE_ENCOLADO, nombre);
 	printf(CANT_PACIENTES_ENCOLADOS, cantidad_espera(espera), especialidad);
 
 }
 
+void atender_paciente(hash_t* especialidades, char* especialidad){
+	esp_t* espera = hash_obtener(especialidades, especialidad);
+	if(espera_esta_vacia(espera)){
+		printf(SIN_PACIENTES);
+	}else{
+		void* paciente = obtener_siguiente(espera);
+		printf(PACIENTE_ATENDIDO, (char*)paciente);
+	}
+	
+}
+
 void procesar_comando(const char* comando, char** parametros, hash_t* doctores, hash_t* pacientes, hash_t* especialidades) {
 	if (strcmp(comando, COMANDO_PEDIR_TURNO) == 0) {
-
-		if(comprobar_errores(parametros, pacientes, especialidades)){
-
+		if(comprobar_errores_pedir_turno(parametros, pacientes, especialidades)){
 			if (strcmp(parametros[2], URGENTE) == 0) agendar_turno_urgente(parametros[0], parametros[1], especialidades);
 			else agendar_turno_regular(parametros[0], parametros[1], pacientes, especialidades);
 		}
 		
 	
 	} else if (strcmp(comando, COMANDO_ATENDER) == 0) {
+		if(comprobar_errores_atender(parametros, doctores)){
+			char* especialidad = hash_obtener(doctores, parametros[0]);
+			atender_paciente(especialidades, especialidad);
+		}
+
 
 	} else if (strcmp(comando, COMANDO_INFORME) == 0) {
 
@@ -91,6 +116,7 @@ void procesar_entrada(hash_t* doctores, hash_t* pacientes, hash_t* especialidade
 		free_strv(parametros);
 		free_strv(campos);
 	}
+
 	free(linea);
 }
 
@@ -104,7 +130,7 @@ int main(int argc, char** argv) {
 	while (!hash_iter_al_final(iter_doctores)) {
 		const char* clave = hash_iter_ver_actual(iter_doctores);
 		char* dato = hash_obtener(doctores, clave);
-		esp_t* espera = espera_crear(strcmp, NULL);
+		esp_t* espera = espera_crear(strcmp, free);
 		hash_guardar(especialidades, dato, espera);
 		hash_iter_avanzar(iter_doctores);
 	}

@@ -4,6 +4,7 @@
 #include "stdbool.h"
 #include "cola.h"
 #include "abb.h"
+#include <stdio.h>
 
 struct esp {
     cola_t* cola_urgente;
@@ -39,10 +40,15 @@ esp_t* espera_crear(esp_comparar_clave_t cmp, esp_destruir_dato_t destruir_dato)
     return esp;
 }
 
+
+bool espera_esta_vacia(esp_t* esp){
+    return (esp->cant == 0);
+}
+
 size_t cantidad_espera(esp_t* esp) {
     return esp->cant;
 }
-
+/*
 size_t cantidad_urgencia(esp_t* esp) {
     return cola_tam(esp->cola_urgente);
 }
@@ -50,7 +56,7 @@ size_t cantidad_urgencia(esp_t* esp) {
 size_t cantidad_regular(esp_t* esp) {
     return abb_cantidad(esp->abb_regular);
 }
-
+*/
 bool guardar_urgente(esp_t* esp, void *valor) {
     bool todo_ok = cola_encolar(esp->cola_urgente, valor);
     if (todo_ok) esp->cant++;
@@ -69,16 +75,14 @@ bool guardar_regular(esp_t* esp, const char *clave, void *dato) {
     return todo_ok;
     // Reminder: cuando se vacie la cola borrar el anio y destruir la cola
 }
-
+/*
 void* obtener_urgente(esp_t* esp) {
     return cola_ver_primero(esp->cola_urgente);
 }
-
 void* obtener_regular(esp_t* esp, const char *clave) {
     return abb_obtener(esp->abb_regular, clave);
 }
-
-/*
+*/
 void* obtener_siguiente(esp_t* esp) {
     if (!cola_esta_vacia(esp->cola_urgente)) {
         esp->cant--;
@@ -86,8 +90,19 @@ void* obtener_siguiente(esp_t* esp) {
     }
 
     abb_iter_t* iter = abb_iter_in_crear(esp->abb_regular);
-}*/
+    const char* primero = abb_iter_in_ver_actual(iter);
+    cola_t* cola_regular = abb_obtener(esp->abb_regular, primero);
+    void* siguiente = cola_desencolar(cola_regular);
 
+    if(cola_esta_vacia(cola_regular)){
+        cola_destruir(cola_regular, esp->destruir);
+        abb_borrar(esp->abb_regular, primero);
+    }
+    abb_iter_in_destruir(iter);
+    esp->cant--;
+    return siguiente;
+}
+/*
 void* retirar_urgente(esp_t* esp) {
     void* elem = cola_desencolar(esp->cola_urgente);
     if (elem) esp->cant--;
@@ -98,7 +113,7 @@ void* retirar_regular(esp_t* esp, const char *clave) {
     void* elem = abb_borrar(esp->abb_regular, clave);
     if (elem) esp->cant--;
     return elem;
-}
+}*/
 
 void espera_destruir(esp_t* esp) {
     // Crear iterador del abb para destruir las colas del guardar_regular
