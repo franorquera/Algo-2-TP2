@@ -58,9 +58,16 @@ bool guardar_urgente(esp_t* esp, void *valor) {
 }
 
 bool guardar_regular(esp_t* esp, const char *clave, void *dato) {
-    bool todo_ok = abb_guardar(esp->abb_regular, clave, dato);
+    bool todo_ok;
+    if (!abb_pertenece(esp->abb_regular, clave)) {
+        cola_t* cola = cola_crear();
+        todo_ok = abb_guardar(esp->abb_regular, clave, cola);
+    }
+    cola_t* cola_obtenida = abb_obtener(esp->abb_regular, clave);
+    todo_ok = cola_encolar(cola_obtenida, dato);
     if (todo_ok) esp->cant++;
     return todo_ok;
+    // Reminder: cuando se vacie la cola borrar el anio y destruir la cola
 }
 
 void* obtener_urgente(esp_t* esp) {
@@ -70,6 +77,16 @@ void* obtener_urgente(esp_t* esp) {
 void* obtener_regular(esp_t* esp, const char *clave) {
     return abb_obtener(esp->abb_regular, clave);
 }
+
+/*
+void* obtener_siguiente(esp_t* esp) {
+    if (!cola_esta_vacia(esp->cola_urgente)) {
+        esp->cant--;
+        return cola_desencolar(esp->cola_urgente);
+    }
+
+    abb_iter_t* iter = abb_iter_in_crear(esp->abb_regular);
+}*/
 
 void* retirar_urgente(esp_t* esp) {
     void* elem = cola_desencolar(esp->cola_urgente);
@@ -84,6 +101,7 @@ void* retirar_regular(esp_t* esp, const char *clave) {
 }
 
 void espera_destruir(esp_t* esp) {
+    // Crear iterador del abb para destruir las colas del guardar_regular
     cola_destruir(esp->cola_urgente, esp->destruir);
     abb_destruir(esp->abb_regular);
     free(esp);

@@ -6,13 +6,16 @@
 #include "strutil.h"
 #include "csv.h"
 #include "mensajes.h"
-/*#include "funciones_tp2.h" -> TDA ESPERA? */
 
 #define COMANDO_PEDIR_TURNO "PEDIR_TURNO"
 #define COMANDO_ATENDER "ATENDER_SIGUIENTE"
 #define COMANDO_INFORME "INFORME"
 #define URGENTE "URGENTE"
 #define REGULAR "REGULAR"
+
+void destruir_espera(void* esp) {
+	espera_destruir((esp_t*) esp);
+}
 
 bool comprobar_errores(char** parametros, hash_t* pacientes, hash_t* especialidades){
 	bool todo_ok = true;
@@ -94,7 +97,7 @@ void procesar_entrada(hash_t* doctores, hash_t* pacientes, hash_t* especialidade
 int main(int argc, char** argv) {
 	hash_t* doctores = csv_crear_estructura(argv[1]);
 	hash_t* pacientes = csv_crear_estructura(argv[2]);
-    hash_t* especialidades = hash_crear(NULL);
+    hash_t* especialidades = hash_crear(destruir_espera);
 
 	hash_iter_t* iter_doctores = hash_iter_crear(doctores);
     
@@ -107,6 +110,11 @@ int main(int argc, char** argv) {
 	}
 	
     procesar_entrada(doctores, pacientes, especialidades);
+
+	hash_iter_destruir(iter_doctores);
+	hash_destruir(especialidades);
+	hash_destruir(doctores);
+	hash_destruir(pacientes);
 	
     return 0;
 }

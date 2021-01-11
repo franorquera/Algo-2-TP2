@@ -21,6 +21,11 @@ bool guardar_urgente(esp_t* esp, void *valor);
 
 bool guardar_regular(esp_t* esp, const char *clave, void *dato);
 
+/*
+Pre: Hay algun elemento en espera
+*/
+void* obtener_siguiente(esp_t* esp);
+
 void* obtener_urgente(esp_t* esp);
 
 void* obtener_regular(esp_t* esp, const char *clave);
