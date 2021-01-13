@@ -14,6 +14,10 @@ struct esp {
     esp_destruir_dato_t destruir;
 };
 
+void destruir_cola(void* cola) {
+	cola_destruir((cola_t*) cola, free); // Cuidado con el free
+}
+
 esp_t* espera_crear(esp_comparar_clave_t cmp, esp_destruir_dato_t destruir_dato) {
     esp_t* esp = malloc(sizeof(esp_t));
 
@@ -28,7 +32,7 @@ esp_t* espera_crear(esp_comparar_clave_t cmp, esp_destruir_dato_t destruir_dato)
         return NULL;
     }
     
-    esp->abb_regular = abb_crear(esp->cmp, esp->destruir);
+    esp->abb_regular = abb_crear(esp->cmp, destruir_cola);
 
     if (!esp->abb_regular) {
         free(esp);
@@ -90,7 +94,7 @@ void* obtener_siguiente(esp_t* esp) {
     }
 
     abb_iter_t* iter = abb_iter_in_crear(esp->abb_regular);
-    const char* primero = abb_iter_in_ver_actual(iter);
+    const char* primero = abb_iter_in_ver_actual(iter); //anio
     cola_t* cola_regular = abb_obtener(esp->abb_regular, primero);
     void* siguiente = cola_desencolar(cola_regular);
 
@@ -117,6 +121,18 @@ void* retirar_regular(esp_t* esp, const char *clave) {
 
 void espera_destruir(esp_t* esp) {
     // Crear iterador del abb para destruir las colas del guardar_regular
+    /*
+    abb_iter_t* iter = abb_iter_in_crear(esp->abb_regular);
+
+    while(!abb_iter_in_al_final(iter)) {
+        const char* primero = abb_iter_in_ver_actual(iter);
+        cola_t* cola_regular = abb_obtener(esp->abb_regular, primero);
+        cola_destruir(cola_regular, esp->destruir);
+        abb_iter_in_avanzar(iter);
+    }
+
+    abb_iter_in_destruir(iter);
+    */
     cola_destruir(esp->cola_urgente, esp->destruir);
     abb_destruir(esp->abb_regular);
     free(esp);

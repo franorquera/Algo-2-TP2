@@ -67,6 +67,7 @@ void atender_paciente(hash_t* especialidades, char* especialidad){
 	}else{
 		void* paciente = obtener_siguiente(espera);
 		printf(PACIENTE_ATENDIDO, (char*)paciente);
+		free(paciente);
 	}
 	
 }
