@@ -57,7 +57,6 @@ void agendar_turno_regular(char* nombre, char* especialidad, hash_t* pacientes, 
 	guardar_regular(espera, hash_obtener(pacientes, nombre), nombre_copia);
 	printf(PACIENTE_ENCOLADO, nombre);
 	printf(CANT_PACIENTES_ENCOLADOS, cantidad_espera(espera), especialidad);
-
 }
 
 void atender_paciente(hash_t* especialidades, char* especialidad){
@@ -69,7 +68,26 @@ void atender_paciente(hash_t* especialidades, char* especialidad){
 		printf(PACIENTE_ATENDIDO, (char*)paciente);
 		free(paciente);
 	}
-	
+}
+
+void pedir_planilla(abb_t* doctores_atendidos, hash_t* doctores) {
+	abb_iter_t* iter = abb_iter_in_crear(doctores_atendidos);
+	size_t incremento = 1;
+
+	while (!abb_iter_in_al_final(iter)) {
+
+		const char* doctor = abb_iter_in_ver_actual(iter);
+		int cant_pacientes = *(int*) abb_obtener(doctores_atendidos, doctor);
+		char* especialidad = (char*) hash_obtener(doctores, doctor);
+
+		printf(INFORME_DOCTOR, incremento, doctor, especialidad, cant_pacientes);
+
+		incremento++;
+
+		abb_iter_in_avanzar(iter);
+	}
+
+	abb_iter_in_destruir(iter);
 }
 
 void procesar_comando(const char* comando, char** parametros, hash_t* doctores, hash_t* pacientes, hash_t* especialidades, abb_t* doctores_atendidos) {
@@ -85,13 +103,16 @@ void procesar_comando(const char* comando, char** parametros, hash_t* doctores, 
 			char* especialidad = hash_obtener(doctores, parametros[0]);
 			atender_paciente(especialidades, especialidad);
 			int* cant_pacientes_atendidos = abb_obtener(doctores_atendidos, parametros[0]);
+			int* nueva_cantidad_paciente = malloc(sizeof(int)); 
 			*cant_pacientes_atendidos += 1;
-			abb_guardar(doctores_atendidos, parametros[0], cant_pacientes_atendidos);
+			*nueva_cantidad_paciente = *cant_pacientes_atendidos;
+			abb_guardar(doctores_atendidos, parametros[0], nueva_cantidad_paciente);
 		}
 
 
 	} else if (strcmp(comando, COMANDO_INFORME) == 0) {
-
+		pedir_planilla(doctores_atendidos, doctores);
+	
 	} else {
 
 	}
@@ -128,14 +149,15 @@ int main(int argc, char** argv) {
 	hash_t* doctores = csv_crear_estructura(argv[1]);
 	hash_t* pacientes = csv_crear_estructura(argv[2]);
     hash_t* especialidades = hash_crear(destruir_espera);
-	abb_t* doctores_atendidos = abb_crear(strcmp, NULL);
+	abb_t* doctores_atendidos = abb_crear(strcmp, free);
 
 	hash_iter_t* iter_doctores = hash_iter_crear(doctores);
     
 	while (!hash_iter_al_final(iter_doctores)) {
 		const char* clave = hash_iter_ver_actual(iter_doctores);
-		int pacientes_atendidos_inicialmente = 0;
-		abb_guardar(doctores_atendidos, clave, &pacientes_atendidos_inicialmente);
+		int* pacientes_atendidos_inicialmente = malloc(sizeof(int));
+		*pacientes_atendidos_inicialmente = 0;
+		abb_guardar(doctores_atendidos, clave, pacientes_atendidos_inicialmente);
 		char* dato = hash_obtener(doctores, clave);
 		esp_t* espera = espera_crear(strcmp, free);
 		hash_guardar(especialidades, dato, espera);
