@@ -73,8 +73,10 @@ void abb_in_order(abb_t *arbol, bool visitar(const char *, void *, void *), void
 
 // ITERADOR EXTERNO DEL ABB
 
+// cantidad de elementos a iterar
+size_t abb_iter_in_cant(abb_iter_t *iter);
 // Crea el iterador.
-abb_iter_t *abb_iter_in_crear(const abb_t *arbol);
+abb_iter_t *abb_iter_in_crear(const abb_t *arbol, char* clave_inicial);
 
 // Avanza el iterador.
 bool abb_iter_in_avanzar(abb_iter_t *iter);

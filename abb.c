@@ -22,6 +22,7 @@ struct abb {
 struct abb_iter{
   const abb_t* abb;
   cola_t* cola;
+  size_t cant;
 };
 
 
@@ -238,22 +239,38 @@ void abb_in_order(abb_t *arbol, bool visitar(const char *, void *, void *), void
 
 // ITERADOR EXTERNO
 
-void llenar_iterador(cola_t *cola, nodo_abb_t* nodo_act){
+void llenar_iterador(cola_t *cola, nodo_abb_t* nodo_act, size_t* cant){
     if(!nodo_act) return;
 
-    llenar_iterador(cola,nodo_act->izq);
+    llenar_iterador(cola,nodo_act->izq, cant);
     cola_encolar(cola, (char*)nodo_act->clave);
-    llenar_iterador(cola,nodo_act->der);
+    *cant +=1;
+    llenar_iterador(cola,nodo_act->der, cant);
 }
 
-abb_iter_t *abb_iter_in_crear(const abb_t *arbol){
+nodo_abb_t* _abb_buscar_inicio(const abb_t *arbol, nodo_abb_t *nodo_act, char* clave_inicio) {
+    if (arbol->cmp(nodo_act->clave,clave_inicio) == 0) return nodo_act;
+    if (arbol->cmp(nodo_act->clave,clave_inicio) > 0) return _abb_buscar_inicio(arbol,nodo_act->izq,clave_inicio);
+    return _abb_buscar_inicio(arbol,nodo_act->der,clave_inicio);
+}
+
+abb_iter_t *abb_iter_in_crear(const abb_t *arbol, char* clave_inicio){
     abb_iter_t *abb_iter = malloc(sizeof(abb_iter_t));
     if(!abb_iter) return NULL;
 
+
     abb_iter->cola = cola_crear();
-    llenar_iterador(abb_iter->cola, arbol->raiz);
+    nodo_abb_t* inicio = arbol->raiz;
+    if (clave_inicio != NULL) inicio = _abb_buscar_inicio(arbol,arbol->raiz,clave_inicio);
+    size_t cant = 0;
+    llenar_iterador(abb_iter->cola, inicio, &cant);
+    abb_iter->cant = cant;
     return abb_iter;
 
+}
+
+size_t abb_iter_in_cant(abb_iter_t *iter){
+    return iter->cant;
 }
 
 bool abb_iter_in_avanzar(abb_iter_t *iter){

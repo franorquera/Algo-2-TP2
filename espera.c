@@ -93,7 +93,7 @@ void* obtener_siguiente(esp_t* esp) {
         return cola_desencolar(esp->cola_urgente);
     }
 
-    abb_iter_t* iter = abb_iter_in_crear(esp->abb_regular);
+    abb_iter_t* iter = abb_iter_in_crear(esp->abb_regular,NULL);
     const char* primero = abb_iter_in_ver_actual(iter); //anio
     cola_t* cola_regular = abb_obtener(esp->abb_regular, primero);
     void* siguiente = cola_desencolar(cola_regular);
