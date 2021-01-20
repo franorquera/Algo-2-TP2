@@ -4,6 +4,7 @@
 #include "stdbool.h"
 #include "stdio.h"
 #include "cola.h"
+#include "hash.h"
 
 typedef struct nodo_abb {
     struct nodo_abb *izq;
@@ -238,35 +239,82 @@ void abb_in_order(abb_t *arbol, bool visitar(const char *, void *, void *), void
 
 
 // ITERADOR EXTERNO
-
-void llenar_iterador(cola_t *cola, nodo_abb_t* nodo_act, size_t* cant){
+void llenar_iterador_rango(cola_t *cola, nodo_abb_t* nodo_act, abb_comparar_clave_t cmp,size_t* cant, char *inicio, bool* encontrado, hash_t* hash_aux){
     if(!nodo_act) return;
 
-    llenar_iterador(cola,nodo_act->izq, cant);
+    if (!(*encontrado) && cmp(inicio, nodo_act->clave) > 0)llenar_iterador_rango(cola,nodo_act->der, cmp, cant, inicio, encontrado, hash_aux);
+    if (!(*encontrado) && cmp(inicio, nodo_act->clave) < 0)llenar_iterador_rango(cola,nodo_act->izq, cmp, cant, inicio, encontrado, hash_aux);
+    if (!(*encontrado) && cmp(inicio, nodo_act->clave) == 0){
+        cola_encolar(cola, (char*)nodo_act->clave);
+        *cant +=1;
+        hash_guardar(hash_aux, (char*)nodo_act->clave, NULL);
+        *encontrado = true;
+        llenar_iterador_rango(cola,nodo_act->der, cmp, cant, inicio,encontrado, hash_aux);
+        return;
+    }
+
+    if((*encontrado)){
+        // si ya esta en el hash o es mas chico que inicio, return
+        if(hash_pertenece(hash_aux,(char*)nodo_act->clave) || cmp(inicio, nodo_act->clave)>0) return;
+        llenar_iterador_rango(cola,nodo_act->izq, cmp, cant, inicio, encontrado, hash_aux);
+        cola_encolar(cola, (char*)nodo_act->clave);
+        *cant +=1;
+        hash_guardar(hash_aux, (char*)nodo_act->clave, NULL);
+        llenar_iterador_rango(cola,nodo_act->der, cmp, cant, inicio, encontrado, hash_aux);
+    }
+
+    
+}
+
+void llenar_iterador(cola_t *cola, nodo_abb_t* nodo_act, abb_comparar_clave_t cmp, size_t* cant){
+    if(!nodo_act) return;    
+    llenar_iterador(cola,nodo_act->izq, cmp, cant);
     cola_encolar(cola, (char*)nodo_act->clave);
     *cant +=1;
-    llenar_iterador(cola,nodo_act->der, cant);
+    llenar_iterador(cola,nodo_act->der, cmp, cant);
 }
 
-nodo_abb_t* _abb_buscar_inicio(const abb_t *arbol, nodo_abb_t *nodo_act, char* clave_inicio) {
-    if (arbol->cmp(nodo_act->clave,clave_inicio) == 0) return nodo_act;
-    if (arbol->cmp(nodo_act->clave,clave_inicio) > 0) return _abb_buscar_inicio(arbol,nodo_act->izq,clave_inicio);
-    return _abb_buscar_inicio(arbol,nodo_act->der,clave_inicio);
+void _abb_buscar_inicio(const abb_t *arbol, nodo_abb_t *nodo_act, char* clave_inicio, nodo_abb_t** auxiliar, nodo_abb_t** candidato) {
+    if(!nodo_act) return;
+
+    if (arbol->cmp(nodo_act->clave,clave_inicio) == 0){
+        *candidato = nodo_act;
+        return;
+    }
+
+    if (arbol->cmp(nodo_act->clave,clave_inicio) > 0){
+        _abb_buscar_inicio(arbol,nodo_act->izq,clave_inicio, auxiliar, candidato);
+    }else{
+        _abb_buscar_inicio(arbol,nodo_act->der,clave_inicio, auxiliar,candidato);
+    }
+    if(!(*candidato)){
+        if(!(*auxiliar) && arbol->cmp(nodo_act->clave,clave_inicio)>0){
+            *auxiliar = nodo_act;
+        }else if((*auxiliar) && arbol->cmp(nodo_act->clave,(*auxiliar)->clave)<0 && arbol->cmp(nodo_act->clave,clave_inicio)>0){
+            *auxiliar = nodo_act;
+        }
+    }
 }
 
-abb_iter_t *abb_iter_in_crear(const abb_t *arbol, char* clave_inicio){
+abb_iter_t *abb_iter_in_crear(const abb_t *arbol, char* inicio, char* final){
     abb_iter_t *abb_iter = malloc(sizeof(abb_iter_t));
     if(!abb_iter) return NULL;
 
-
     abb_iter->cola = cola_crear();
-    nodo_abb_t* inicio = arbol->raiz;
-    if (clave_inicio != NULL) inicio = _abb_buscar_inicio(arbol,arbol->raiz,clave_inicio);
-    size_t cant = 0;
-    llenar_iterador(abb_iter->cola, inicio, &cant);
-    abb_iter->cant = cant;
+    size_t cantidad = 0;
+    if(inicio){
+        nodo_abb_t* candidato = NULL;
+        nodo_abb_t* auxiliar = NULL;
+        _abb_buscar_inicio(arbol, arbol->raiz, inicio, &auxiliar, &candidato);
+        if(auxiliar) inicio = (char*)auxiliar->clave;
+        if(!auxiliar && !candidato) return abb_iter;
+        bool encontrado = false;
+        hash_t* hash_aux = hash_crear(NULL);
+        llenar_iterador_rango(abb_iter->cola, arbol->raiz, arbol->cmp,&cantidad, inicio, &encontrado, hash_aux);
+        hash_destruir(hash_aux);
+    }else llenar_iterador(abb_iter->cola, arbol->raiz, arbol->cmp, &cantidad);
+    abb_iter->cant = cantidad;
     return abb_iter;
-
 }
 
 size_t abb_iter_in_cant(abb_iter_t *iter){

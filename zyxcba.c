@@ -68,6 +68,15 @@ bool comprobar_errores_atender(char** parametros, hash_t* doctores, int cantidad
 	return todo_ok;
 }
 
+bool comprobar_errores_informe(char** parametros, hash_t* doctores, int cantidad_parametros){
+	bool todo_ok = true;
+	if(cantidad_parametros != 2){
+		printf(ENOENT_PARAMS, COMANDO_INFORME);
+		return false;
+	}
+	return todo_ok;
+}
+
 void agendar_turno_urgente(char* nombre, char* especialidad, hash_t* especialidades) {
 	esp_t* espera = hash_obtener(especialidades, especialidad);
 	char* nombre_copia = strdup(nombre);
@@ -84,20 +93,24 @@ void agendar_turno_regular(char* nombre, char* especialidad, hash_t* pacientes, 
 	printf(CANT_PACIENTES_ENCOLADOS, cantidad_espera(espera), especialidad);
 }
 
-void atender_paciente(hash_t* especialidades, char* especialidad){
+bool atender_paciente(hash_t* especialidades, char* especialidad){
+	bool todo_ok = true;
 	esp_t* espera = hash_obtener(especialidades, especialidad);
 	if(espera_esta_vacia(espera)){
 		printf(SIN_PACIENTES);
+		todo_ok = false;
 	}else{
 		void* paciente = obtener_siguiente(espera);
 		printf(PACIENTE_ATENDIDO, (char*)paciente);
 		free(paciente);
 	}
+	return todo_ok;
 }
 
-void pedir_planilla(char* inicio, abb_t* doctores_atendidos, hash_t* doctores) {
+void pedir_planilla(char* inicio, char* final, abb_t* doctores_atendidos, hash_t* doctores) {
 	if(strcmp(inicio,"") == 0) inicio = NULL;
-	abb_iter_t* iter = abb_iter_in_crear(doctores_atendidos, inicio);
+	if(strcmp(final,"") == 0) final = NULL;
+	abb_iter_t* iter = abb_iter_in_crear(doctores_atendidos, inicio, final);
 	size_t incremento = 1;
 
 	printf(DOCTORES_SISTEMA, abb_iter_in_cant(iter));
@@ -130,21 +143,23 @@ void procesar_comando(const char* comando, char** parametros, hash_t* doctores, 
 	} else if (strcmp(comando, COMANDO_ATENDER) == 0) {
 		if(comprobar_errores_atender(parametros, doctores, cantidad_parametros)){
 			char* especialidad = hash_obtener(doctores, parametros[0]);
-			atender_paciente(especialidades, especialidad);
-			int* cant_pacientes_atendidos = abb_obtener(doctores_atendidos, parametros[0]);
-			int* nueva_cantidad_paciente = malloc(sizeof(int)); 
-			*cant_pacientes_atendidos += 1;
-			*nueva_cantidad_paciente = *cant_pacientes_atendidos;
-			abb_guardar(doctores_atendidos, parametros[0], nueva_cantidad_paciente);
+			if(atender_paciente(especialidades, especialidad)){
+				int* cant_pacientes_atendidos = abb_obtener(doctores_atendidos, parametros[0]);
+				int* nueva_cantidad_paciente = malloc(sizeof(int)); 
+				*cant_pacientes_atendidos += 1;
+				*nueva_cantidad_paciente = *cant_pacientes_atendidos;
+				abb_guardar(doctores_atendidos, parametros[0], nueva_cantidad_paciente);
+			}
 		}
 
 
 	} else if (strcmp(comando, COMANDO_INFORME) == 0) {
-		pedir_planilla(parametros[0],doctores_atendidos, doctores);
+		if(comprobar_errores_informe(parametros,doctores, cantidad_parametros)){
+			pedir_planilla(parametros[0], parametros[1],doctores_atendidos, doctores);
+		}
 	
 	} else {
 		printf(ENOENT_CMD, comando);
-
 	}
 }
 
@@ -154,7 +169,7 @@ void eliminar_fin_linea(char* linea) {
 		linea[len - 1] = '\0';
 	}
 }
-
+// PEDIR_TURNO:PARAMETROS
 void procesar_entrada(hash_t* doctores, hash_t* pacientes, hash_t* especialidades, abb_t* doctores_atendidos) {
 	char* linea = NULL;
 	size_t c = 0;
@@ -213,3 +228,8 @@ int main(int argc, char** argv) {
 	
     return 0;
 }
+
+
+/*
+
+"800" 800*/
