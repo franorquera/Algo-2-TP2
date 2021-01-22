@@ -19,6 +19,7 @@ static void eliminar_cartridge_return(char* linea) {
 	}
 }
 
+// Agregar funcion de comparacion
 hash_t* csv_crear_estructura(const char* ruta_csv) {
 	FILE* archivo = fopen(ruta_csv, "r");
 	if (!archivo) {
