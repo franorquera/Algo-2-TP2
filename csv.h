@@ -16,7 +16,7 @@ necesario); luego de invocarse el constructor se invoca a free_strv.
 Se devuelve una lista con todos los elementos construidos. NULL en caso que el archivo
 csv (indicado por la ruta pasada por parámetro) no exista. 
 **/
-hash_t* csv_crear_estructura(const char* ruta_csv);
+int csv_crear_estructura(const char* ruta_csv, hash_t* hash, bool (*visitar_dato)(void *));
 
 
 #endif

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <ctype.h>
 #include "espera.h"
 #include "hash.h"
 #include "strutil.h"
@@ -12,6 +13,15 @@
 #define COMANDO_INFORME "INFORME"
 #define URGENTE "URGENTE"
 #define REGULAR "REGULAR"
+
+bool es_numero(void* numero) {
+	char* n = (char*) numero;
+	size_t len = strlen(n);
+	for (size_t i = 0; i < len; i++) {
+		if (isdigit(n[i]) == 0) return false;
+	}
+	return true;
+}
 
 void destruir_espera(void* esp) {
 	espera_destruir((esp_t*) esp);
@@ -201,8 +211,24 @@ void procesar_entrada(hash_t* doctores, hash_t* pacientes, hash_t* especialidade
 }
 
 int main(int argc, char** argv) {
-	hash_t* doctores = csv_crear_estructura(argv[1]);
-	hash_t* pacientes = csv_crear_estructura(argv[2]);
+	if (argc != 3) {
+		printf(ENOENT_CANT_PARAMS);
+		return 1;
+	}
+	hash_t* doctores = hash_crear(free);
+	hash_t* pacientes = hash_crear(free);
+	int todo_ok = csv_crear_estructura(argv[1], doctores, NULL);
+	if (todo_ok != 0) {
+		hash_destruir(doctores);
+		hash_destruir(pacientes);
+		return 1;
+	}
+	todo_ok = csv_crear_estructura(argv[2], pacientes, es_numero);
+	if (todo_ok != 0) {
+		hash_destruir(doctores);
+		hash_destruir(pacientes);
+		return 1;
+	}
     hash_t* especialidades = hash_crear(destruir_espera);
 	abb_t* doctores_atendidos = abb_crear(strcmp, free);
 
@@ -229,8 +255,3 @@ int main(int argc, char** argv) {
 	
     return 0;
 }
-
-
-/*
-
-"800" 800*/

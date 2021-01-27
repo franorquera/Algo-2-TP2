@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "mensajes.h"
 #include "csv.h"
 #define SEPARADOR ','
 
@@ -20,18 +21,14 @@ static void eliminar_cartridge_return(char* linea) {
 }
 
 // Agregar funcion de comparacion
-hash_t* csv_crear_estructura(const char* ruta_csv) {
+int csv_crear_estructura(const char* ruta_csv, hash_t* hash, bool (*visitar_dato)(void *)) {
 	FILE* archivo = fopen(ruta_csv, "r");
+	int todo_ok = 0;
 	if (!archivo) {
-		return NULL;
+		printf(ENOENT_ARCHIVO, ruta_csv);
+		return 1;
 	}
 	
-	hash_t* hash = hash_crear(free);
-	if (!hash) {
-		fclose(archivo);
-		return NULL;
-	}
-
 	char* linea = NULL;
 	size_t c = 0;
 	while (getline(&linea, &c, archivo) > 0) {
@@ -39,10 +36,14 @@ hash_t* csv_crear_estructura(const char* ruta_csv) {
 		char** campos = split(linea, SEPARADOR);
 		eliminar_cartridge_return(campos[1]);
 		void* copia_dato = strdup(campos[1]);
-		hash_guardar(hash, campos[0], copia_dato);
+		if (visitar_dato && !visitar_dato(copia_dato)) {
+			printf(ENOENT_ANIO, (char*) copia_dato);
+			todo_ok = 1;
+		}
+		hash_guardar((hash), campos[0], copia_dato);
 		free_strv(campos);
 	}
 	free(linea);
 	fclose(archivo);
-	return hash;
+	return todo_ok;
 }
