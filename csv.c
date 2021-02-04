@@ -24,6 +24,7 @@ static void eliminar_cartridge_return(char* linea) {
 int csv_crear_estructura(const char* ruta_csv, hash_t* hash, bool (*visitar_dato)(void *)) {
 	FILE* archivo = fopen(ruta_csv, "r");
 	int todo_ok = 0;
+	
 	if (!archivo) {
 		printf(ENOENT_ARCHIVO, ruta_csv);
 		return 1;
@@ -31,6 +32,7 @@ int csv_crear_estructura(const char* ruta_csv, hash_t* hash, bool (*visitar_dato
 	
 	char* linea = NULL;
 	size_t c = 0;
+	
 	while (getline(&linea, &c, archivo) > 0) {
 		eliminar_fin_linea(linea);
 		char** campos = split(linea, SEPARADOR);
@@ -43,6 +45,7 @@ int csv_crear_estructura(const char* ruta_csv, hash_t* hash, bool (*visitar_dato
 		hash_guardar((hash), campos[0], copia_dato);
 		free_strv(campos);
 	}
+	
 	free(linea);
 	fclose(archivo);
 	return todo_ok;

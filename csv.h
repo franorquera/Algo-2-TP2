@@ -18,5 +18,4 @@ csv (indicado por la ruta pasada por parámetro) no exista.
 **/
 int csv_crear_estructura(const char* ruta_csv, hash_t* hash, bool (*visitar_dato)(void *));
 
-
 #endif

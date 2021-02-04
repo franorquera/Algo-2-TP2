@@ -215,23 +215,26 @@ int main(int argc, char** argv) {
 		printf(ENOENT_CANT_PARAMS);
 		return 1;
 	}
+	
 	hash_t* doctores = hash_crear(free);
 	hash_t* pacientes = hash_crear(free);
 	int todo_ok = csv_crear_estructura(argv[1], doctores, NULL);
+	
 	if (todo_ok != 0) {
 		hash_destruir(doctores);
 		hash_destruir(pacientes);
 		return 1;
 	}
+	
 	todo_ok = csv_crear_estructura(argv[2], pacientes, es_numero);
 	if (todo_ok != 0) {
 		hash_destruir(doctores);
 		hash_destruir(pacientes);
 		return 1;
 	}
-    hash_t* especialidades = hash_crear(destruir_espera);
+    
+	hash_t* especialidades = hash_crear(destruir_espera);
 	abb_t* doctores_atendidos = abb_crear(strcmp, free);
-
 	hash_iter_t* iter_doctores = hash_iter_crear(doctores);
     
 	while (!hash_iter_al_final(iter_doctores)) {

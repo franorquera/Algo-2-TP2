@@ -1,0 +1,1 @@
+zyxcba: espera.o hash.o strutil.o csv.o mensajes.o
