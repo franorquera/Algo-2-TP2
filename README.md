@@ -1,7 +1,8 @@
 # Trabajo Práctico 2: Clínica Zyxcba Inc.
 
 ## Integrantes
-Federico Ezequiel Jaleh, padron: 105553\n
+Federico Ezequiel Jaleh, padron: 105553
+
 Francisco Orquera Lorda, padron: 105554
 
 ### Corrector
