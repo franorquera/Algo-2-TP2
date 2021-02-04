@@ -1,4 +1,0 @@
-PEDIR_TURNO:pepe,nariz,REGULAR
-PEDIR_TURNO:salamandra,corazon,REGULAR
-ATENDER_SIGUIENTE:federico
-ATENDER_SIGUIENTE:federico
