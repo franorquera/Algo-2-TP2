@@ -1,3 +1,4 @@
+#define _DEFAULT_SOURCE
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -7,6 +8,8 @@
 #include "strutil.h"
 #include "csv.h"
 #include "mensajes.h"
+#include "abb.h"
+#include "cola.h"
 
 #define COMANDO_PEDIR_TURNO "PEDIR_TURNO"
 #define COMANDO_ATENDER "ATENDER_SIGUIENTE"

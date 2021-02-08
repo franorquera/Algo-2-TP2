@@ -1,3 +1,4 @@
+#define _DEFAULT_SOURCE
 #include "hash.h"
 #include <stdbool.h>
 #include <stdlib.h>

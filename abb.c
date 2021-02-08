@@ -1,3 +1,4 @@
+#define _DEFAULT_SOURCE
 #include "abb.h"
 #include "stdlib.h"
 #include "string.h"
