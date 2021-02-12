@@ -10,7 +10,6 @@ typedef struct nodo {
 struct cola {
     nodo_t* prim;
     nodo_t* ult;
-    size_t tam;
 };
 
 nodo_t *nodo_crear(void* valor) {
@@ -26,7 +25,6 @@ cola_t *cola_crear(void) {
     if (!cola) return NULL;
     cola->prim = NULL;
     cola->ult = NULL;
-    cola->tam = 0;
     return cola;
 }
 
@@ -40,7 +38,6 @@ bool cola_encolar(cola_t *cola, void *valor) {
     if (!cola->prim) cola->prim = elem;
     else cola->ult->prox = elem;
     cola->ult = elem;
-    cola->tam ++;
     return true;
 }
 
@@ -56,7 +53,6 @@ void *cola_desencolar(cola_t *cola) {
     free(cola->prim);
     cola->prim = nuevo_prim;
     if (!cola->prim) cola->ult = NULL;
-    cola->tam --;
     return valor;
 }
 
@@ -66,8 +62,4 @@ void cola_destruir(cola_t *cola, void (*destruir_dato)(void *)) {
         if(destruir_dato) destruir_dato(dato);
     }
     free(cola);
-}
-
-size_t cola_tam(cola_t *cola){
-    return cola->tam;
 }

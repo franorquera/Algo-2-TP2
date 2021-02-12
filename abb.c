@@ -256,7 +256,6 @@ void llenar_iterador_rango(cola_t *cola, nodo_abb_t* nodo_act, abb_comparar_clav
     }
 
     if((*encontrado)){
-        // si ya esta en el hash o es mas chico que inicio, return
         if (hash_pertenece(hash_aux,(char*)nodo_act->clave) || cmp(inicio, nodo_act->clave) > 0) return;
         llenar_iterador_rango(cola,nodo_act->izq, cmp, cant, inicio, final, encontrado, hash_aux);
         if (final && cmp(final, nodo_act->clave) < 0) return;
